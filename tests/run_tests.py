@@ -64,9 +64,19 @@ def ref_space(gid):
 
 # ------------------------------------------------------------------ tiny test framework
 RESULTS = []
+GHA = os.environ.get('GITHUB_ACTIONS') == 'true'
+
+def gha(level, title, msg):
+    """On GitHub Actions, also emit an annotation so failures are visible on the run page without the log."""
+    if GHA:
+        clean = lambda t: str(t).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+        print(f'::{level} title={clean(title)}::{clean(msg)}', flush=True)
+
 def check(name, ok, detail=''):
     RESULTS.append((name, bool(ok), detail))
-    print(f'  [{"PASS" if ok else "FAIL"}] {name}' + (f'  ({detail})' if detail else ''))
+    print(f'  [{"PASS" if ok else "FAIL"}] {name}' + (f'  ({detail})' if detail else ''), flush=True)
+    if not ok:
+        gha('error', f'FAIL: {name}', detail)
 
 def pixel_rel(a, b, floor=1e-3):
     """Colour error relative to the pixel's brightness (max |channel|), in linear light."""
@@ -332,4 +342,13 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb, flush=True)
+        gha('error', 'Test suite crashed', tb[-3000:])
+        sys.exit(2)
