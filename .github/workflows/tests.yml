@@ -17,7 +17,8 @@ jobs:
       - name: Generated DCTLs are up to date
         run: |
           python tools/build_dctl.py
-          git diff --exit-code -- dctl/
+          python tools/build_spec.py
+          git diff --exit-code -- dctl/ docs/
       - name: Run test suite (C++, C99 and OpenCL builds)
         run: python tests/run_tests.py
       - name: Build release zip

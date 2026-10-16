@@ -2,8 +2,19 @@
 
 A **Color Space Transform DCTL for DaVinci Resolve** that works like the stock CST node, and adds camera color spaces the stock CST doesn't have:
 
-- **Kinefinity KineLog3 / Kinefinity Wide Gamut**: MAVO Edge 6K, MAVO mark2 LF.
-- **DJI D-Log / D-Gamut**: Ronin 4D 6K/8K, Zenmuse X9, X7.
+- **Kinefinity KineLog3**: MAVO Edge 6K, MAVO mark2 LF, MAVO Edge 8K and Vista, including KineOS 8's BT.2020 mode.
+- **DJI D-Log / D-Gamut**: Ronin 4D 6K and 8K, Zenmuse X9 (incl. Inspire 3), X7.
+
+### Supported cameras
+| Camera | Status |
+|---|---|
+| Kinefinity MAVO Edge 6K, MAVO mark2 LF | ✅ Kinefinity's published KineLog3 + Kinefinity Wide Gamut |
+| Kinefinity MAVO Edge 6K / 8K, MAVO mark2, recording KineOS 8 **BT.2020** gamut | ✅ Exact: KineLog3 + standard BT.2020 |
+| Kinefinity **MAVO Edge 8K**, **Vista** (native gamut) | ⚠️ Curve exact; **primaries provisional**, since Kinefinity hasn't published them yet ([why and how to verify](docs/SPECIFICATION.md#33-kinefinity-wide-gamut-native-gamut)) |
+| DJI Ronin 4D 6K & 8K, Zenmuse X9-6K / X9-8K (Inspire 3), Zenmuse X7 | ✅ DJI's published D-Log + D-Gamut, correct at every EI |
+| Older KineLOG/KineLOG2 cameras, Kinefinity HLG, DJI D-Log M / D-Log2 | ❌ Not supported (see the spec) |
+
+The complete formulas, constants, color-space tables, sources and verification status are in **[docs/SPECIFICATION.md](docs/SPECIFICATION.md)**.
 
 It also includes ARRI, Sony, RED, Canon, Panasonic, Fujifilm, Blackmagic, ACES and display spaces.
 
@@ -39,7 +50,7 @@ On a node, add *Effects > ResolveFX Color > DCTL* and choose **Color Space Trans
 
 | Control | Options |
 |---|---|
-| Input Color Space / Output Color Space | Kinefinity Wide Gamut, ARRI Wide Gamut 3, ARRI Wide Gamut 4, DaVinci Wide Gamut, Rec.709 / sRGB, Rec.2020, P3-D65, DCI-P3, ACES AP0, ACES AP1, Sony S-Gamut3, S-Gamut3.Cine, RED Wide Gamut RGB, Panasonic V-Gamut, Canon Cinema Gamut, Blackmagic Wide Gamut, Fujifilm F-Gamut, **DJI D-Gamut** |
+| Input Color Space / Output Color Space | Kinefinity WG (Edge 6K / MM2 LF, Edge 8K, Vista), Kinefinity BT.2020 (KineOS 8), ARRI Wide Gamut 3, ARRI Wide Gamut 4, DaVinci Wide Gamut, Rec.709 / sRGB, Rec.2020, P3-D65, DCI-P3, ACES AP0, ACES AP1, Sony S-Gamut3, S-Gamut3.Cine, RED Wide Gamut RGB, Panasonic V-Gamut, Canon Cinema Gamut, Blackmagic Wide Gamut, Fujifilm F-Gamut, **DJI D-Gamut** |
 | Input Gamma / Output Gamma | Linear, **KineLog3**, ARRI LogC3 (EI 800), ARRI LogC4, DaVinci Intermediate, Sony S-Log3, RED Log3G10, Panasonic V-Log, Canon Log 3, Blackmagic Film Gen 5, Fujifilm F-Log2, ACEScct, ACEScc, Rec.709, sRGB, Gamma 2.2, 2.4 and 2.6, ST 2084 PQ (1.0 = 100 nits), **DJI D-Log** |
 | White Point Adaptation | Bradford (default), CAT02 or None. It only matters for ACES and DCI-P3; everything else is D65. |
 
@@ -56,7 +67,7 @@ This converts Kinefinity or DJI footage in one node, with nothing to set up.
 
 | Control | Options |
 |---|---|
-| Source | Kinefinity KineLog3 / KWG, or DJI D-Log / D-Gamut |
+| Source | Kinefinity KineLog3: Edge 6K / MM2 LF, Edge 8K, Vista or BT.2020 mode. Or DJI D-Log / D-Gamut. |
 | Target | ARRI LogC3 / AWG3, ARRI LogC4 / AWG4, DaVinci WG / Intermediate, Kinefinity KineLog3 / KWG |
 | Remap | **Color + Gamma** gives a full conversion. **Color only** converts each pixel's color but keeps the original log curve, so tonality and contrast stay as shot. |
 | LogC3 EI | 160–1600. Set it to the EI the ALEXA was rated at, so footage drops straight into an ALEXA pipeline. |
@@ -70,7 +81,7 @@ This converts Kinefinity or DJI footage in one node, with nothing to set up.
 
 ## Accuracy
 
-Every formula comes from the manufacturer's published specification. Each push runs [`tests/run_tests.py`](tests/run_tests.py), **90 checks** in all. It builds the DCTLs outside Resolve in three ways: as C++ (a stand-in for CUDA and Metal), as strict C99, and as real OpenCL kernels.
+Every formula comes from the manufacturer's published specification; the only exceptions are the Edge 8K and Vista primaries, which are marked provisional. Each push runs [`tests/run_tests.py`](tests/run_tests.py), **109 checks** in all. It builds the DCTLs outside Resolve in three ways: as C++ (a stand-in for CUDA and Metal), as strict C99, and as real OpenCL kernels.
 
 | Check | Result |
 |---|---|
@@ -82,8 +93,8 @@ Every formula comes from the manufacturer's published specification. Each push r
 | All 972 combinations of input gamut, output gamut and white-point adaptation | within 2.3×10⁻⁶ |
 | End-to-end conversions (e.g. KineLog3→LogC3, D-Log→DaVinci Intermediate) | under 0.1 of a 10-bit code value |
 | Color Remap at all 11 LogC3 EIs | matches ARRI LogC3 per EI |
-| Robustness: every curve pair, inputs from −100 to 100 | 0 NaN / Inf in 16.5 M output values |
-| C++ vs C99 vs OpenCL (incl. fast-math) | agree within 0.1 of a 10-bit code value |
+| Robustness: every curve pair, inputs from −100 to 100 | 0 NaN / Inf in 19.2 M output values |
+| C++ vs C99 vs OpenCL | agree within 0.1 of a 10-bit code value (0.2 with OpenCL fast-math) |
 
 **Run the tests yourself:**
 ```bash
@@ -92,7 +103,8 @@ python3 tests/run_tests.py
 ```
 
 ### Notes
-- **DJI D-Log is the same at every EI on the X9.** Below native EI (6K: 800 / 5000), DJI feeds the curve a scaled sensor signal, so 18% grey stays at 408 and only the highlight clip drops. Above native EI, it adds analog gain. So one decode is correct at every EI.
+- **The KineLog3 v1 spec's matrices aren't white-balanced.** Kinefinity's first spec (Oct 2025) printed matrices whose rows sum to 1.02–1.03, which would shift neutrals. This project uses the corrected v2 spec.
+- **DJI D-Log is the same at every EI on the X9-6K and X9-8K.** Below native EI (6K: 800 / 5000; 8K: 800 / 4000), DJI feeds the curve a scaled sensor signal, so 18% grey stays at 408 and only the highlight clip drops. Above native EI, it adds analog gain. So one decode is correct at every EI.
 - **ARRI LogC3 in the CST uses EI 800**, as Resolve's stock CST does. Use **Color Remap mk2** for other EIs.
 - **The LogC3, ACEScc and BT.709 curves** follow their standards, including ACEScc's clamp below zero and the tiny 0.018 knee step in BT.709.
 - **Decoded linear values are clamped to ±65504**, the half-float range, as ACES does. Out-of-range input can then never produce NaN pixels.

@@ -2,9 +2,13 @@ COLOR SPACE TRANSFORM mk2  -  v__VERSION__
 =====================================
 
 A Color Space Transform for DaVinci Resolve that adds camera color spaces the stock
-CST doesn't have - Kinefinity KineLog3 / Kinefinity Wide Gamut and DJI D-Log / D-Gamut
-(Ronin 4D, Zenmuse X9) - plus the usual ARRI, Sony, RED, Canon, Panasonic, Fujifilm,
+CST doesn't have, plus the usual ARRI, Sony, RED, Canon, Panasonic, Fujifilm,
 Blackmagic, ACES and display spaces.
+
+  Kinefinity KineLog3:  MAVO Edge 6K, MAVO mark2 LF, KineOS 8 BT.2020 mode (exact)
+                        MAVO Edge 8K, Vista (curve exact; primaries provisional until
+                        Kinefinity publishes them - see docs/SPECIFICATION.md on GitHub)
+  DJI D-Log / D-Gamut:  Ronin 4D 6K & 8K, Zenmuse X9 (incl. Inspire 3), Zenmuse X7
 
 Requires DaVinci Resolve STUDIO (the free version of Resolve cannot run DCTLs).
 Works on macOS (Apple Silicon and Intel) and Windows, any GPU (Metal / CUDA / OpenCL).
@@ -43,6 +47,9 @@ Color Space Transform mk2  -  works like the stock CST: pick Input Color Space /
     display image follow it with a stock CST that does the tone mapping, e.g.
       [CST mk2: Kinefinity WG / KineLog3 -> DaVinci WG / DaVinci Intermediate]
       [stock CST: DaVinci WG / Intermediate -> Rec.709 / Gamma 2.4, Tone Mapping on]
+
+Pick the entry that matches your camera, e.g. "Kinefinity WG - Edge 8K - provisional",
+or "Kinefinity BT.2020 - KineOS 8" if you recorded ProRes in the BT.2020 gamut.
 
 Color Remap mk2  -  one-click Kinefinity KineLog3 or DJI D-Log footage to
     ARRI LogC3 (any EI), ARRI LogC4, DaVinci Intermediate or KineLog3.
