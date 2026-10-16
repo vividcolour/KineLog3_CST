@@ -1,0 +1,29 @@
+name: release
+
+# Push a tag like v1.0.0 to test, build the zip and publish it as a GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r tests/requirements.txt
+      - name: Tag matches VERSION file
+        run: test "v$(cat VERSION)" = "${GITHUB_REF_NAME}"
+      - run: python tests/run_tests.py
+      - run: python tools/package_release.py
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.sha256
+          body_path: .github/RELEASE_NOTES.md
