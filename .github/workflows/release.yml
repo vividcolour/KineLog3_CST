@@ -1,6 +1,7 @@
 name: release
 
-# Push a tag like v1.0.0 to test, build the zip and publish it as a GitHub Release.
+# Publishing a GitHub Release with a tag like v1.2.0 (or pushing that tag) tests the code,
+# builds the downloads and attaches them to the release.
 on:
   push:
     tags: ["v*"]
@@ -12,8 +13,8 @@ jobs:
   release:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -r tests/requirements.txt
@@ -21,9 +22,14 @@ jobs:
         run: test "v$(cat VERSION)" = "${GITHUB_REF_NAME}"
       - run: python tests/run_tests.py
       - run: python tools/package_release.py
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
-          files: |
-            dist/*.zip
-            dist/*.sha256
+          name: Color Space Transform mk2 ${{ github.ref_name }}
           body_path: .github/RELEASE_NOTES.md
+          overwrite_files: true
+          files: |
+            dist/Color-Space-Transform-mk2.dctl
+            dist/Color-Remap-mk2.dctl
+            dist/Color-Space-Transform-mk2-Installer.zip
+            dist/Color-Space-Transform-mk2-DCTL-only.zip
+            dist/SHA256SUMS.txt

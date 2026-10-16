@@ -1,0 +1,32 @@
+name: Bug report / color mismatch
+description: Something looks wrong, doesn't load, or doesn't match
+labels: ["bug"]
+body:
+  - type: input
+    id: dctl
+    attributes:
+      label: Which DCTL and settings?
+      placeholder: "e.g. Color Space Transform mk2, Kinefinity WG - Edge 8K / KineLog3 -> DaVinci WG / Intermediate"
+    validations:
+      required: true
+  - type: input
+    id: camera
+    attributes:
+      label: Camera, record format and firmware
+      placeholder: "e.g. MAVO Edge 8K, ProRes 4444, KineLog3, native gamut, KineOS 8.1"
+    validations:
+      required: true
+  - type: input
+    id: resolve
+    attributes:
+      label: Resolve version, OS and GPU
+      placeholder: "e.g. Resolve Studio 20.2, macOS 26, M3 Max (Metal)"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: Screenshots (with scopes, if a color issue) help a lot.
+    validations:
+      required: true

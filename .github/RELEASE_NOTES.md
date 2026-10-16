@@ -1,10 +1,20 @@
-## Download
+## Downloads
 
-Download **`Color-Space-Transform-mk2-vX.Y.Z.zip`** under **Assets** below. Ignore "Source code".
+| File | What it is |
+|---|---|
+| **`Color-Space-Transform-mk2.dctl`** | The main DCTL: like Resolve's CST, with Kinefinity KineLog3 and DJI D-Log added |
+| **`Color-Remap-mk2.dctl`** | One-node Kinefinity / DJI footage → ARRI LogC3 (any EI), LogC4, DaVinci Intermediate or KineLog3 |
+| `Color-Space-Transform-mk2-Installer.zip` | Both DCTLs + extras + one-click installers for macOS and Windows |
+| `Color-Space-Transform-mk2-DCTL-only.zip` | Both DCTLs + extras, no scripts, for manual install |
+| `SHA256SUMS.txt` | Checksums, to verify your download |
 
-1. Unzip it.
-2. **macOS:** double-click `install-macos.command`. The first time, right-click it and choose **Open**.
-   **Windows:** double-click `install-windows.bat` and click **Yes** when it asks for permission.
-3. In Resolve, go to **Project Settings > Color Management > Lookup Tables > Update Lists**.
+Ignore the "Source code" downloads; they're the developer files.
 
-This requires **DaVinci Resolve Studio**. See `READ ME FIRST.txt` in the zip for manual install and usage, and `CHANGELOG.md` in the repository for what's new.
+**Install the DCTLs:**
+1. In Resolve, go to **Project Settings > Color Management > Lookup Tables** and click **Open LUT Folder**.
+2. Drop the `.dctl` files in.
+3. Click **Update Lists**.
+
+Or use the Installer zip.
+
+This requires **DaVinci Resolve Studio**. See the [README](https://github.com/vividcolour/KineLog3_CST#readme) for supported cameras and usage, and the [CHANGELOG](https://github.com/vividcolour/KineLog3_CST/blob/main/CHANGELOG.md) for what's new.
