@@ -1,0 +1,5 @@
+numpy
+scipy
+opencv-python-headless
+# optional, only for test/make_synthetic.py:
+# colour-science

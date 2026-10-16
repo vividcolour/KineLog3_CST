@@ -1,0 +1,6 @@
+# Test / build dependencies (not needed to USE the DCTLs)
+numpy>=1.24
+scipy>=1.10
+colour-science==0.4.7
+pyopencl>=2024.1
+pocl-binary-distribution>=3.0 ; platform_system == "Linux" and platform_machine == "x86_64"

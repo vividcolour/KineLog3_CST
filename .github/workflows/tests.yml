@@ -1,0 +1,28 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+      - name: Generated DCTLs are up to date
+        run: |
+          python tools/build_dctl.py
+          git diff --exit-code -- dctl/
+      - name: Run test suite (C++, C99 and OpenCL builds)
+        run: python tests/run_tests.py
+      - name: Build release zip
+        run: python tools/package_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-zip
+          path: dist/*
